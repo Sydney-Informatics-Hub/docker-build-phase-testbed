@@ -8,6 +8,7 @@ RUN apt update -y
 
 RUN apt install -y python3.13-venv
 RUN apt install -y libmariadb-dev python3-virtualenv pip
+RUN apt install -y mariadb-client
 
 RUN mkdir -p /opt/init_py
 RUN python3 -m venv /opt/init_py
