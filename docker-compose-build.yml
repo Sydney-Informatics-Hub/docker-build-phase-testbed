@@ -27,7 +27,7 @@ services:
       MARIADB_DATABASE_FILE: /run/secrets/db_database
       MARIADB_USER_FILE: /run/secrets/db_user
       MARIADB_PASSWORD_FILE: /run/secrets/db_password
-      MARIADB_HOST: omeka-s-db
+      MARIADB_HOST: db
       MARIADB_PORT: 3306
     ports:
       - '127.0.0.1:8080:80'
