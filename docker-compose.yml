@@ -10,8 +10,6 @@ services:
     depends_on:
       db:
         condition: service_healthy
-    volumes:
-     - ./db-init:/output
     secrets:
       - db_database
       - db_user
@@ -37,6 +35,7 @@ services:
     image: mariadb:12.2.1-noble-rc
     volumes:
       - omeka-s-db:/var/lib/mysql
+      - ./db-init:/docker-entrypoint-initdb.d
     secrets:
       - db_database
       - db_user
