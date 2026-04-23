@@ -1,0 +1,79 @@
+name: test-build
+
+services:
+
+  apache:
+    build:
+      context: .
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+     - ./db-init:/output
+    secrets:
+      - db_database
+      - db_user
+      - db_password
+      - omeka_admin_user
+      - omeka_admin_email
+      - omeka_admin_password
+    environment:
+      OMEKA_ADMIN_EMAIL_FILE: /run/secrets/omeka_admin_email
+      OMEKA_ADMIN_PASSWORD_FILE: /run/secrets/omeka_admin_password
+      OMEKA_ADMIN_USER_FILE: /run/secrets/omeka_admin_user
+      MARIADB_DATABASE_FILE: /run/secrets/db_database
+      MARIADB_USER_FILE: /run/secrets/db_user
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_HOST: omeka-s-db
+      MARIADB_PORT: 3306
+    ports:
+      - '127.0.0.1:8080:80'
+    networks:
+      - test-network
+
+  db:
+    image: mariadb:12.2.1-noble-rc
+    volumes:
+      - omeka-s-db:/var/lib/mysql
+    secrets:
+      - db_database
+      - db_user
+      - db_password
+      - db_root_password
+    environment:
+      MARIADB_DATABASE_FILE: /run/secrets/db_database
+      MARIADB_USER_FILE: /run/secrets/db_user
+      MARIADB_PASSWORD_FILE: /run/secrets/db_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/db_root_password
+    networks:
+      - test-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      retries: 10
+
+networks:
+  test-network:
+    driver: bridge
+    name: "${COMPOSE_PROJECT_NAME}-network"
+
+volumes:
+  omeka-s-db:
+  omeka-s-app:
+
+secrets:
+  db_database:
+    environment: DB_DATABASE
+  db_user:
+    environment: DB_USER
+  db_password:
+    environment: DB_PASSWORD
+  db_root_password:
+    environment: DB_ROOT_PASSWORD
+  omeka_admin_user:
+    environment: OMEKA_ADMIN_USER
+  omeka_admin_email:
+    environment: OMEKA_ADMIN_EMAIL
+  omeka_admin_password:
+    environment: OMEKA_ADMIN_PASSWORD
